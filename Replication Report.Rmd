@@ -7,7 +7,49 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+# This is replication code for "Physiological Arousal and Political Beliefs"
+# published in Political Psychology by authors Jonathan Renshon, Julia Lee &
+# Dustin Tingley.
+
+# Initial read -- this dataset contains several variables that are poorly named,
+# slightly confusing as to what they refer to such as "anxcond" and "anxcond3",
+# and I already know that the stata document is going to give me a headache.
+# Here goes!
+
+# We will replicate Figures 2, 3, and Table 1 from the published paper.
 ```
+
+```{r}
+# Table 1
+
+# in the author's stata code, when they type "reg SCDBradSelfReport1_mean
+# anxcond if anxcond3 ~= 0", I believe that tells stata to make a linear
+# regression to show SCD mean scores during the video when "Anxiety Condition"
+# is equal to 0 -- (anxcond = Anxiety Manipulation Dummy, just for reference.
+# they are not the same.) from the handy-dandy stata manuals webpage, I learned
+# this formula for linear regressions in stata: "regress [depvar] [indepvars] if
+# [in] [weight] , options." So, I will use lm() to run the same regression in r.
+# Not sure how to set an "option" for anxcond3 == 0 yet.
+
+fig2.out <- lm(data = anxiety, 
+               SCDBradSelfReport1_mean ~ anxcond3)
+summary(fig2.out)
+
+
+```
+
+
+
+```{r}
+#Figure 2: Means of Skin Conductance Reactivity by Video Condition, ciplot
+#"SCDBradVidManipAll_mean" which means SCD mean score of the subject during the
+#video they watched), by anxcond3, which means Anxiety Manipulation Dummy.
+
+
+
+```
+
 
 ```{r}
 # code for Figure 3: Causal Mediation Plot
