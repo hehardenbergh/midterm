@@ -9,22 +9,33 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+```{r}
+# code for Figure 3: Causal Mediation Plot
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+# Load Data
+anxiety<-read.csv("renshon_files/anxiety.csv") 
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## Make Subsets (do this last)
+noRelaxCond <- subset(anxiety, anxcond3>0)
 
-```{r cars}
-summary(cars)
+#Outcome Model
+y <- lm(immigration ~ anxcond + SCDBradSelfReport1_mean+storycond, data= noRelaxCond)
+summary(y) # summarize results from model
+
+#Mediator Model
+m <- lm(SCDBradSelfReport1_mean ~ anxcond+storycond, data= noRelaxCond)
+summary(m) # summarize results from model
+
+# Mediation Analysis
+m.out <-  mediate(m, y,
+               sims = 500,
+               treat = "anxcond", 
+               mediator = "SCDBradSelfReport1_mean", 
+               dropobs = TRUE, 
+               boot = TRUE, 
+               conf.level = .90)
+summary(m.out)
+plot(m.out, labels=c("ACME\n(Physiological \nReactivity)", "Direct Effect \n(Anxiety)", "Total Effect"))
+
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
