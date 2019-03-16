@@ -30,10 +30,10 @@ knitr::opts_chunk$set(echo = TRUE)
 # they are not the same.) from the handy-dandy stata manuals webpage, I learned
 # this formula for linear regressions in stata: "regress [depvar] [indepvars] if
 # [in] [weight] , options." So, I will use lm() to run the same regression in r.
-# Not sure how to set an "option" for anxcond3 == 0 yet.
+# set an "option" for anxcond3 == 0 on the RHS of model formula.
 
 fig2.out <- lm(data = anxiety, 
-               SCDBradSelfReport1_mean ~ anxcond3)
+               SCDBradSelfReport1_mean ~ anxcond3 == 0)
 summary(fig2.out)
 
 
@@ -52,7 +52,7 @@ summary(fig2.out)
 
 
 ```{r}
-# code for Figure 3: Causal Mediation Plot
+# Figure 3
 
 # Load Data
 anxiety<-read.csv("renshon_files/anxiety.csv") 
@@ -77,7 +77,12 @@ m.out <-  mediate(m, y,
                boot = TRUE, 
                conf.level = .90)
 summary(m.out)
-plot(m.out, labels=c("ACME\n(Physiological \nReactivity)", "Direct Effect \n(Anxiety)", "Total Effect"))
+
+m.out %>% 
+  ggplot(aes(m.out)) + geom_boxplot() %>% 
+  labs(y = c("ACME\n(Physiological \nReactivity)", "Direct Effect \n(Anxiety)", "Total Effect"),
+       x = "Skin Conductance Reactivity",
+       caption = "Figure 2. Means of skin-conductance reactivity by video condition. 95% confidence intervals are in blue (online version).")
 
 ```
 
