@@ -1,74 +1,142 @@
 ---
-title: "Replication Report"
+title: "Midterm"
 author: "Hannah Hardenbergh"
 date: "3/13/2019"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE)
 
 # This is replication code for "Physiological Arousal and Political Beliefs"
 # published in Political Psychology by authors Jonathan Renshon, Julia Lee &
 # Dustin Tingley.
 
+# The authors aimed to determine if incidental emotions have an effect on
+# subjects' political beliefs. they measured "physiological arousal" by skin
+# conductance levels (SCL), a level of reactivity relative to a baseline level.
+# This was measured after subjects were exposed to three different types of
+# videos: one "cliffhanger" involving high stress and suspense, one emotionally
+# neutral video, and one relaxing video. the authors predicted that
+# physiological reactivity, as a biological proxy for anxiety, would "mediate"
+# the relationship between induced anxiety and attitudes toward immigrants.
+
 # Initial read -- this dataset contains several variables that are poorly named,
 # slightly confusing as to what they refer to such as "anxcond" and "anxcond3",
-# and I already know that the stata document is going to give me a headache.
-# Here goes!
+# I don't know what the mTurk dataset is there for (it's larger than the anxiety
+# dataset), and I already know that the stata document is going to give me a
+# headache. Here goes!
 
-# We will replicate Figures 2, 3, and Table 1 from the published paper.
+# I will replicate Figures 2, 3, and Table 1 from the published paper.
+
+# load libraries
+
+library(gt)
+library(tidyverse)
+library(stargazer)
+library(mediation)
+
+# Load Data
+
+anxiety<-read.csv("renshon_files/anxiety.csv") 
+
+
 ```
 
-```{r}
+```{r echo=FALSE, results='asis'}
 # Table 1
 
 # in the author's stata code, when they type "reg SCDBradSelfReport1_mean
 # anxcond if anxcond3 ~= 0", I believe that tells stata to make a linear
 # regression to show SCD mean scores during the video when "Anxiety Condition"
 # is equal to 0 -- (anxcond = Anxiety Manipulation Dummy, just for reference.
-# they are not the same.) from the handy-dandy stata manuals webpage, I learned
-# this formula for linear regressions in stata: "regress [depvar] [indepvars] if
-# [in] [weight] , options." So, I will use lm() to run the same regression in r.
-# set an "option" for anxcond3 == 0 on the RHS of model formula.
+# they are not the same, though the names are pretty confusing.) 
 
-fig2.out <- lm(data = anxiety, 
+# Table 1 displays two linear regression models: from the handy-dandy stata
+# manuals webpage, I learned this formula for linear regressions in stata:
+# "regress [depvar] [indepvars] if [in] [weight] , options." So, set an "option"
+# anxcond3 == 0 on the RHS of model formula. I will use lm() to run the same
+# regression in r for these two models that I found in the "replication code.do"
+# file:
+
+# reg SCDBradSelfReport1_mean anxcond if anxcond3 ~=0
+
+anxcond3.out <- lm(data = anxiety, 
                SCDBradSelfReport1_mean ~ anxcond3 == 0)
-summary(fig2.out)
 
+# reg immigration storycond anxcond SCDBradSelfReport1_mean if anxcond3 ~=0
+
+immigration.out <- lm(data = anxiety,
+                      immigration ~ storycond + anxcond + SCDBradSelfReport1_mean + anxcond3 == 0)
+  
+table.1 <- stargazer(anxcond3.out,
+                     immigration.out,
+                     type = "html",
+                     title = "Table 1. Main Results",
+                     covariate.labels = c("Anxiety Manipulation",
+                                          "Story Condition",
+                                          "SC Reactivity while answering questions",
+                                          "Constant"),
+                     dep.var.labels = "SC Reactivity", "Immigration Preferences",
+                     digits = 1,
+                     # notes = "Model (1) shows the effect of the treatment (anxiety) on physiological reactivity while Model (2) shows the effects of physiological reactivity on immigration preferences, controlling for the story condition. Both models includes only Neutral & Anxiety conditions (Relax condition is excluded). Standard errors in brackets.",
+                     notes.align = "l")
 
 ```
 
 
+```{r echo=FALSE, results='asis'}
+#Figure 2: Means of Skin Conductance Reactivity by Video Condition,
+#"SCDBradVidManipAll_mean" which represents the skin conductance reactivity (a
+#mean score) of the subject during the video they watched, which is the method
+#that the authors used to determine a physiological change in the subject. This
+#is plotted with anxcond3, which represents the Anxiety Manipulation Dummy.
+#Figure 2 shows skin conductance reactivity during the video playback by the
+#three video conditions: relaxed, neutral, and anxiety.
 
-```{r}
-#Figure 2: Means of Skin Conductance Reactivity by Video Condition, ciplot
-#"SCDBradVidManipAll_mean" which means SCD mean score of the subject during the
-#video they watched), by anxcond3, which means Anxiety Manipulation Dummy.
+# ciplot() produces a confidence interval for the mean of a new observation or
+# the prediction interval for a single new observation.
 
+# load this library to access ciplot()
 
+# library(handyplots)
 
+# make a graphic that plots the skin conductance reactivity of subjects while
+# they watched videos with the Anxiety Condition (anxcond3)
+
+# fig.2 <- ciplot(anxcond3, SCDBradVidManipAll_mean,
+               # show.range = TRUE,
+                #)
 ```
 
 
-```{r}
+```{r echo=FALSE, results='asis'}
 # Figure 3
 
-# Load Data
-anxiety<-read.csv("renshon_files/anxiety.csv") 
+# for this figure, the authors use causal mediation analysis to look at a causal
+# mediation analysis of the SCD mean scores of subjects while they were asked
+# questions after viewing one of the three videos.
 
-## Make Subsets (do this last)
-noRelaxCond <- subset(anxiety, anxcond3>0)
+# the authors make a subset of the anxiety data to filter for when the subjects'
+# anxiety conditions are greater than 3 to estimate the relatively isolated
+# effect of anxiety on political beliefs about immigration. as a 1005 graduate,
+# I would write this code in the tidyverse package, but they use subset(). They
+# both do the same thing.
 
-#Outcome Model
-y <- lm(immigration ~ anxcond + SCDBradSelfReport1_mean+storycond, data= noRelaxCond)
-summary(y) # summarize results from model
+noRelaxCond <- anxiety %>% 
+  filter(anxcond3 > 0)
+
+#Outcome Model to 
+
+y <- lm(immigration ~ anxcond + SCDBradSelfReport1_mean + storycond, data= noRelaxCond)
 
 #Mediator Model
-m <- lm(SCDBradSelfReport1_mean ~ anxcond+storycond, data= noRelaxCond)
-summary(m) # summarize results from model
+
+m <- lm(SCDBradSelfReport1_mean ~ anxcond + storycond, data= noRelaxCond)
 
 # Mediation Analysis
+
 m.out <-  mediate(m, y,
                sims = 500,
                treat = "anxcond", 
@@ -76,13 +144,15 @@ m.out <-  mediate(m, y,
                dropobs = TRUE, 
                boot = TRUE, 
                conf.level = .90)
-summary(m.out)
 
-m.out %>% 
-  ggplot(aes(m.out)) + geom_boxplot() %>% 
-  labs(y = c("ACME\n(Physiological \nReactivity)", "Direct Effect \n(Anxiety)", "Total Effect"),
-       x = "Skin Conductance Reactivity",
-       caption = "Figure 2. Means of skin-conductance reactivity by video condition. 95% confidence intervals are in blue (online version).")
+# then plot the results: this plot() call is within the mediation package, which
+# produces an output of the model-based inference from above.
+
+fig.3 <- plot(m.out, labels=c("ACME\n(Physiological \nReactivity)", 
+                              "Direct Effect \n(Anxiety)", 
+                              "Total Effect"),
+              col = "red")
+
 
 ```
 
