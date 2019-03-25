@@ -7,7 +7,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
-                      message = FALSE)
+                      message = FALSE,
+                      warning = FALSE)
 
 # This is replication code for "Physiological Arousal and Political Beliefs"
 # published in Political Psychology by authors Jonathan Renshon, Julia Lee &
@@ -100,14 +101,19 @@ table.1 <- stargazer(anxcond3.out,
 
 # load this library to access ciplot()
 
-# library(handyplots)
+library(handyplots)
 
 # make a graphic that plots the skin conductance reactivity of subjects while
 # they watched videos with the Anxiety Condition (anxcond3)
 
-# fig.2 <- ciplot(anxcond3, SCDBradVidManipAll_mean,
-               # show.range = TRUE,
-                #)
+fig.2 <- anxiety %>% 
+  ggplot(aes(SCDBradSelfReport1_mean, 
+             anxcond3)) + 
+  geom_linerange(mapping = aes(x = anxcond3,
+                               ymin = -0.5,
+                               ymax = 1.5))
+
+print(fig.2)
 ```
 
 
