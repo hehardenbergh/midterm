@@ -97,11 +97,8 @@ table.1 <- stargazer(anxcond3.out,
 #three video conditions: relaxed, neutral, and anxiety.
 
 # ciplot() produces a confidence interval for the mean of a new observation or
-# the prediction interval for a single new observation.
-
-# load this library to access ciplot()
-
-library(handyplots)
+# the prediction interval for a single new observation. you can make similar
+# confidence intervals with ggplot().
 
 # make a graphic that plots the skin conductance reactivity of subjects while
 # they watched videos with the Anxiety Condition (anxcond3)
@@ -109,9 +106,9 @@ library(handyplots)
 fig.2 <- anxiety %>% 
   ggplot(aes(SCDBradSelfReport1_mean, 
              anxcond3)) + 
-  geom_linerange(mapping = aes(x = anxcond3,
-                               ymin = -0.5,
-                               ymax = 1.5))
+  geom_pointrange(mapping = aes(x = anxcond3,
+                               ymin = -0.6196474,
+                               ymax = 2.4903520))
 
 print(fig.2)
 ```
