@@ -31,6 +31,9 @@ knitr::opts_chunk$set(echo = FALSE,
 
 # I will replicate Figures 2, 3, and Table 1 from the published paper.
 
+These are great comments, something you want to have in the actual report though, not in the comments.
+Most of the time people will not have your code to look through.
+
 # load libraries
 
 library(gt)
@@ -53,6 +56,10 @@ anxiety<-read.csv("renshon_files/anxiety.csv")
 # regression to show SCD mean scores during the video when "Anxiety Condition"
 # is equal to 0 -- (anxcond = Anxiety Manipulation Dummy, just for reference.
 # they are not the same, though the names are pretty confusing.) 
+
+It would have been useful to rename them something more intuitive for yourself.
+The authors also excluded the relax condition from their data when they ran the regression so 
+this is why you have 129 observations and they have 81 in Table 1. 
 
 # Table 1 displays two linear regression models: from the handy-dandy stata
 # manuals webpage, I learned this formula for linear regressions in stata:
@@ -85,6 +92,8 @@ table.1 <- stargazer(anxcond3.out,
                      notes.align = "l")
 
 ```
+Definitely would like to see some footnotes on the table and less rounding. In general, you should always round to the digit that the
+authors do in their original work.
 
 
 ```{r echo=FALSE, results='asis'}
@@ -112,6 +121,8 @@ fig.2 <- anxiety %>%
 
 print(fig.2)
 ```
+The wrong variable was used to create figure 2. There were two different skin conductivity measures. They used the other
+one to make this figure.
 
 
 ```{r echo=FALSE, results='asis'}
@@ -158,4 +169,7 @@ fig.3 <- plot(m.out, labels=c("ACME\n(Physiological \nReactivity)",
 
 
 ```
+Good. Confidence intervals look a bit off.
+
+Extension???
 
